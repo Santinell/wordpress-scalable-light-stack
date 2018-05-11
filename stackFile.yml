@@ -106,7 +106,7 @@ services:
   - name: pma
     type: phpApache
     version: 7.1
-    remoteAccess: true
+    remoteAccess: false
     ports:
       - 8080
     source:
