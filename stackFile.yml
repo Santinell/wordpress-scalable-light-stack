@@ -5,6 +5,7 @@ services:
     version: 10.3
     configuration: StandAlone
     username: wordpress
+    database: blog
     # Ask password on create
     userPassword: null
     password: null
@@ -14,8 +15,6 @@ services:
     configFiles:
       - dest: my.cnf
         src: ./configs/my.cnf
-    comments:
-        username: Database will be created with the same name
     deployTo:
       - main
 
@@ -66,15 +65,13 @@ services:
       curl https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /usr/local/bin/wp
       chmod +x /usr/local/bin/wp
       echo 'wp() { su -p www-data -s /bin/sh -c "/usr/local/bin/wp $*"; }' >> ~/.bashrc
-      cp -r $MAIN_PATH/wp-content/themes ~/themes
-    localDeps: cp -r ~/themes/* $MAIN_PATH/wp-content/themes/
-    initialCommands: |
-      cd $MAIN_PATH
-      wp core install --url=$WP_URL --title=\"$WP_TITLE\" --admin_user=$WP_ADMIN_USERNAME --admin_password=$WP_ADMIN_PASSWORD --admin_email=$WP_ADMIN_EMAIL
+      cp -r $MAIN_PATH/wp-content ~/wp-content
+      wp core install --url={{=service('blog').getBalancerDomain()}} --title=\"$WP_TITLE\" --admin_user=$WP_ADMIN_USERNAME --admin_password=$WP_ADMIN_PASSWORD --admin_email=$WP_ADMIN_EMAIL
+    localDeps: |
+      cp -r ~/wp-content/* $MAIN_PATH/wp-content/
       wp plugin install redis-cache --activate
       wp redis enable
     env:
-      WP_URL: "{{=service('blog').getBalancerDomain()}}"
       WP_TITLE: null
       WP_ADMIN_USERNAME: null
       WP_ADMIN_PASSWORD: null
@@ -96,30 +93,10 @@ services:
     ports:
       - 80
       - 443
-    remoteAccess: false
+    remoteAccess: true
     serviceFiles:
       - name: blog
         sticky: true
-    deployTo:
-      - main
-
-  - name: pma
-    type: phpApache
-    version: 7.1
-    remoteAccess: false
-    ports:
-      - 8080
-    source:
-      type: git
-      url: https://github.com/phpmyadmin/phpmyadmin
-      version: STABLE
-    extensions:
-      - mysqli
-      - opcache
-    configFiles:
-      - dest: $MAIN_PATH/config.inc.php
-        src: ./configs/config.inc.php
-    localDeps: composer install
     deployTo:
       - main
 
@@ -127,4 +104,4 @@ hosts:
   - name: main
     requirements:
       cores: 1
-      memory: 1
+      memory: 2
