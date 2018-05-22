@@ -62,8 +62,9 @@ services:
       chmod +x /usr/local/bin/wp
       echo 'wp() { su -p www-data -s /bin/sh -c "/usr/local/bin/wp $*"; }' >> ~/.bashrc
       cp -r $MAIN_PATH/wp-content ~/wp-content
-    localDeps: |
-      cp -r ~/wp-content/* $MAIN_PATH/wp-content/
+    localDeps: cp -r ~/wp-content/* $MAIN_PATH/wp-content/
+    initialCommands:
+      cd $MAIN_PATH
       wp core install --url={{=service('blog').getBalancerDomain()}} --title=\"$WP_TITLE\" --admin_user=$WP_ADMIN_USERNAME --admin_password=$WP_ADMIN_PASSWORD --admin_email=$WP_ADMIN_EMAIL
       wp plugin install redis-cache --activate
       wp redis enable
