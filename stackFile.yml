@@ -28,11 +28,11 @@ services:
       - main
 
   - name: blog
-    type: phpApache
+    type: php
     version: 7.1
     source:
       type: download
-      url: https://wordpress.org/wordpress-4.9.4.zip
+      url: https://wordpress.org/wordpress-4.9.6.zip
     extensions:
       - mysqli
       - opcache
@@ -84,16 +84,23 @@ services:
     deployTo:
       - main
 
-  - name: balancer
-    type: haproxy
+  - name: web
+    type: nginx
     version: latest
     ports:
       - 80
       - 443
     remoteAccess: true
+    globalDeps: |
+      apt-get install curl
+      curl -s https://packagecloud.io/install/repositories/DaryL/libnginx-mod-pagespeed/script.deb.sh | bash
+      apt-get install libnginx-mod-pagespeed
     serviceFiles:
       - name: blog
-        sticky: true
+        static: true
+    configFiles:
+      - dest: nginx.conf
+        src: ./configs/nginx.conf
     deployTo:
       - main
 
