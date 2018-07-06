@@ -41,8 +41,6 @@ services:
       - soap
     pecl:
       - redis
-    ports:
-      - 80
     remoteAccess: false
     volumes:
       - directory: $MAIN_PATH/wp-content
@@ -86,7 +84,7 @@ services:
 
   - name: web
     type: nginx
-    version: latest
+    version: 1.14
     ports:
       - 80
       - 443
