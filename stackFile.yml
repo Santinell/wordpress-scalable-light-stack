@@ -32,7 +32,7 @@ services:
     version: 7.1
     source:
       type: download
-      url: https://wordpress.org/wordpress-4.9.6.zip
+      url: https://wordpress.org/latest.zip
     extensions:
       - mysqli
       - opcache
@@ -52,8 +52,6 @@ services:
         src: ./configs/db-config.php
       - dest: $MAIN_PATH/wp-content/db.php
         src: ./configs/db.php
-      - dest: $MAIN_PATH/.htaccess
-        src: ./configs/.htaccess
     globalDeps: |
       apt-get install less mysql-client
       curl https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /usr/local/bin/wp
